@@ -106,9 +106,7 @@ public class FlightReservation implements DisplayClass {
             Flight flight = flightIterator.next();
             if (flightNum.equalsIgnoreCase(flight.getFlightNumber())) {
                 isFound = true;
-                int numOfTicketsForFlight = customer.getNumOfTicketsBookedByUser().get(index);
-                numOfTickets = validateNumOfTickets(numOfTickets, numOfTicketsForFlight, read);
-                updateFlightAndCustomerData(customer, flight, numOfTickets, numOfTicketsForFlight, index, flightIterator);
+                handleFlightCancellation(customer, flight, numOfTickets, index, read, flightIterator);
                 break;
             }
             index++;
@@ -116,6 +114,12 @@ public class FlightReservation implements DisplayClass {
         if (!isFound) {
             System.out.println("ERROR!!! Couldn't find Flight with ID \"" + flightNum.toUpperCase() + "\".....");
         }
+    }
+
+    private void handleFlightCancellation(Customer customer, Flight flight, int numOfTickets, int index, Scanner read, Iterator<Flight> flightIterator) {
+        int numOfTicketsForFlight = customer.getNumOfTicketsBookedByUser().get(index);
+        numOfTickets = validateNumOfTickets(numOfTickets, numOfTicketsForFlight, read);
+        updateFlightAndCustomerData(customer, flight, numOfTickets, numOfTicketsForFlight, index, flightIterator);
     }
 
     private int validateNumOfTickets(int numOfTickets, int numOfTicketsForFlight, Scanner read) {
