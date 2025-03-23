@@ -129,63 +129,97 @@ public class User {
     }
 
     private static void handleAdminChoice(int desiredOption, Customer c1, FlightReservation bookingAndReserving, Flight f1, Scanner read1) {
-        if (desiredOption == 1) {
-            c1.addNewCustomer();
-        } else if (desiredOption == 2) {
-            c1.displayCustomersData(false);
-            System.out.print("Enter the CustomerID to Search :\t");
-            String customerID = read1.nextLine();
-            System.out.println();
-            c1.searchUser(customerID);
-        } else if (desiredOption == 3) {
-            c1.displayCustomersData(false);
-            System.out.print("Enter the CustomerID to Update its Data :\t");
-            String customerID = read1.nextLine();
-            if (User.getCustomersCollection().size() > 0) {
-                c1.editUserInfo(customerID);
-            } else {
-                System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", customerID);
-            }
-        } else if (desiredOption == 4) {
-            c1.displayCustomersData(false);
-            System.out.print("Enter the CustomerID to Delete its Data :\t");
-            String customerID = read1.nextLine();
-            if (User.getCustomersCollection().size() > 0) {
-                c1.deleteUser(customerID);
-            } else {
-                System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", customerID);
-            }
-        } else if (desiredOption == 5) {
-            c1.displayCustomersData(false);
-        } else if (desiredOption == 6) {
-            c1.displayCustomersData(false);
-            System.out.print("\n\nEnter the ID of the user to display all flights registered by that user...");
-            String id = read1.nextLine();
-            bookingAndReserving.displayFlightsRegisteredByOneUser(id);
-        } else if (desiredOption == 7) {
-            System.out.print("Do you want to display Passengers of all flights or a specific flight.... 'Y/y' for displaying all flights and 'N/n' to look for a specific flight.... ");
-            char choice = read1.nextLine().charAt(0);
-            if ('y' == choice || 'Y' == choice) {
-                bookingAndReserving.displayRegisteredUsersForAllFlight();
-            } else if ('n' == choice || 'N' == choice) {
-                f1.displayFlightSchedule();
-                System.out.print("Enter the Flight Number to display the list of passengers registered in that flight... ");
-                String flightNum = read1.nextLine();
-                bookingAndReserving.displayRegisteredUsersForASpecificFlight(flightNum);
-            } else {
-                System.out.println("Invalid Choice...No Response...!");
-            }
-        } else if (desiredOption == 8) {
-            f1.displayFlightSchedule();
-            System.out.print("Enter the Flight Number to delete the flight : ");
-            String flightNum = read1.nextLine();
-            f1.deleteFlight(flightNum);
-        } else if (desiredOption == 0) {
-            System.out.println("Thanks for Using BAV Airlines Ticketing System...!!!");
-        } else {
-            System.out.println("Invalid Choice...Looks like you're Robot...Entering values randomly...You've Have to login again...");
-            desiredOption = 0;
+        switch (desiredOption) {
+            case 1:
+                c1.addNewCustomer();
+                break;
+            case 2:
+                handleSearchCustomer(c1, read1);
+                break;
+            case 3:
+                handleUpdateCustomer(c1, read1);
+                break;
+            case 4:
+                handleDeleteCustomer(c1, read1);
+                break;
+            case 5:
+                c1.displayCustomersData(false);
+                break;
+            case 6:
+                handleDisplayFlightsByUser(c1, bookingAndReserving, read1);
+                break;
+            case 7:
+                handleDisplayPassengersForFlights(bookingAndReserving, f1, read1);
+                break;
+            case 8:
+                handleDeleteFlight(f1, read1);
+                break;
+            case 0:
+                System.out.println("Thanks for Using BAV Airlines Ticketing System...!!!");
+                break;
+            default:
+                System.out.println("Invalid Choice...Looks like you're Robot...Entering values randomly...You've Have to login again...");
+                break;
         }
+    }
+
+    private static void handleSearchCustomer(Customer c1, Scanner read1) {
+        c1.displayCustomersData(false);
+        System.out.print("Enter the CustomerID to Search :\t");
+        String customerID = read1.nextLine();
+        System.out.println();
+        c1.searchUser(customerID);
+    }
+
+    private static void handleUpdateCustomer(Customer c1, Scanner read1) {
+        c1.displayCustomersData(false);
+        System.out.print("Enter the CustomerID to Update its Data :\t");
+        String customerID = read1.nextLine();
+        if (User.getCustomersCollection().size() > 0) {
+            c1.editUserInfo(customerID);
+        } else {
+            System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", customerID);
+        }
+    }
+
+    private static void handleDeleteCustomer(Customer c1, Scanner read1) {
+        c1.displayCustomersData(false);
+        System.out.print("Enter the CustomerID to Delete its Data :\t");
+        String customerID = read1.nextLine();
+        if (User.getCustomersCollection().size() > 0) {
+            c1.deleteUser(customerID);
+        } else {
+            System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", customerID);
+        }
+    }
+
+    private static void handleDisplayFlightsByUser(Customer c1, FlightReservation bookingAndReserving, Scanner read1) {
+        c1.displayCustomersData(false);
+        System.out.print("\n\nEnter the ID of the user to display all flights registered by that user...");
+        String id = read1.nextLine();
+        bookingAndReserving.displayFlightsRegisteredByOneUser(id);
+    }
+
+    private static void handleDisplayPassengersForFlights(FlightReservation bookingAndReserving, Flight f1, Scanner read1) {
+        System.out.print("Do you want to display Passengers of all flights or a specific flight.... 'Y/y' for displaying all flights and 'N/n' to look for a specific flight.... ");
+        char choice = read1.nextLine().charAt(0);
+        if ('y' == choice || 'Y' == choice) {
+            bookingAndReserving.displayRegisteredUsersForAllFlight();
+        } else if ('n' == choice || 'N' == choice) {
+            f1.displayFlightSchedule();
+            System.out.print("Enter the Flight Number to display the list of passengers registered in that flight... ");
+            String flightNum = read1.nextLine();
+            bookingAndReserving.displayRegisteredUsersForASpecificFlight(flightNum);
+        } else {
+            System.out.println("Invalid Choice...No Response...!");
+        }
+    }
+
+    private static void handleDeleteFlight(Flight f1, Scanner read1) {
+        f1.displayFlightSchedule();
+        System.out.print("Enter the Flight Number to delete the flight : ");
+        String flightNum = read1.nextLine();
+        f1.deleteFlight(flightNum);
     }
 
     private static void handleAdminRegistration(RolesAndPermissions r1, Scanner read1, int countNumOfUsers) {
