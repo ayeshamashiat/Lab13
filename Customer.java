@@ -1,26 +1,26 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Customer {
 
     // ************************************************************ Fields
     // ************************************************************
-    private final String userID;
-    private String email;
     private String name;
+    private String userID;
+    private String email;
+    private String password;
     private String phone;
-    private final String password;
     private String address;
     private int age;
-    public List<Flight> flightsRegisteredByUser;
-    public List<Integer> numOfTicketsBookedByUser;
+    private List<Flight> flightsRegisteredByUser;
+    private List<Integer> numOfTicketsBookedByUser;
     public static final List<Customer> customerCollection = User.getCustomersCollection();
 
-    // ************************************************************
-    // Behaviours/Methods
+    // ************************************************************ Constructors
     // ************************************************************
 
-    Customer() {
-        this.userID = null;
+    public Customer() {
         this.name = null;
         this.email = null;
         this.password = null;
@@ -29,18 +29,7 @@ public class Customer {
         this.age = 0;
     }
 
-    /**
-     * Registers new customer to the program. Obj of RandomGenerator(Composition) is
-     * being used to assign unique userID to the newly created customer.
-     *
-     * @param name     name of the customer
-     * @param email    customer's email
-     * @param password customer's account password
-     * @param phone    customer's phone-number
-     * @param address  customer's address
-     * @param age      customer's age
-     */
-    Customer(String name, String email, String password, String phone, String address, int age) {
+    public Customer(String name, String email, String password, String phone, String address, int age) {
         RandomGenerator random = new RandomGenerator();
         random.randomIDGen();
         this.name = name;
@@ -54,56 +43,29 @@ public class Customer {
         this.numOfTicketsBookedByUser = new ArrayList<>();
     }
 
-    /**
-     * Takes input for the new customer and adds them to programs memory.
-     * isUniqueData() validates the entered email
-     * and returns true if the entered email is already registered. If email is
-     * already registered, program will ask the user
-     * to enter new email address to get himself register.
-     */
+    // ************************************************************ Methods
+    // ************************************************************
+
     public void addNewCustomer() {
-        System.out.printf("\n\n\n%60s ++++++++++++++ Welcome to the Customer Registration Portal ++++++++++++++", "");
         Scanner read = new Scanner(System.in);
-        System.out.print("\nEnter your name :\t");
-        String name = read.nextLine();
-        System.out.print("Enter your email address :\t");
-        String email = read.nextLine();
+        String name = promptUserInput(read, "Enter your name :\t");
+        String email = promptUserInput(read, "Enter your email address :\t");
         while (isUniqueData(email)) {
-            System.out.println(
-                    "ERROR!!! User with the same email already exists... Use new email or login using the previous credentials....");
-            System.out.print("Enter your email address :\t");
-            email = read.nextLine();
+            System.out.println("ERROR!!! User with the same email already exists... Use new email or login using the previous credentials....");
+            email = promptUserInput(read, "Enter your email address :\t");
         }
-        System.out.print("Enter your Password :\t");
-        String password = read.nextLine();
-        System.out.print("Enter your Phone number :\t");
-        String phone = read.nextLine();
-        System.out.print("Enter your address :\t");
-        String address = read.nextLine();
-        System.out.print("Enter your age :\t");
-        int age = read.nextInt();
-        customerCollection.add(new Customer(name, email, password, phone, address, age));
+        String password = promptUserInput(read, "Enter your Password :\t");
+        String phone = promptUserInput(read, "Enter your Phone number :\t");
+        String address = promptUserInput(read, "Enter your address :\t");
+        int age = Integer.parseInt(promptUserInput(read, "Enter your age :\t"));
+        User.getCustomersCollection().add(new Customer(name, email, password, phone, address, age));
     }
 
-    /**
-     * Returns String consisting of customers data(name, age, email etc...) for
-     * displaying.
-     * randomIDDisplay() adds space between the userID for easy readability.
-     *
-     * @param i for serial numbers.
-     * @return customers data in String
-     */
-    private String toString(int i) {
-        return String.format("%10s| %-10d | %-10s | %-32s | %-7s | %-27s | %-35s | %-23s |", "", i,
-                randomIDDisplay(userID), name, age, email, address, phone);
+    private String promptUserInput(Scanner read, String message) {
+        System.out.print(message);
+        return read.nextLine();
     }
 
-    /**
-     * Searches for customer with the given ID and displays the customers' data if
-     * found.
-     *
-     * @param ID of the searching/required customer
-     */
     public void searchUser(String ID) {
         boolean isFound = false;
         Customer customerWithTheID = customerCollection.get(0);
@@ -126,147 +88,85 @@ public class Customer {
         }
     }
 
-    /**
-     * Returns true if the given emailID is already registered, false otherwise
-     *
-     * @param emailID to be checked in the list
-     */
-    public boolean isUniqueData(String emailID) {
-        boolean isUnique = false;
-        for (Customer c : customerCollection) {
-            if (emailID.equals(c.getEmail())) {
-                isUnique = true;
-                break;
+    private Customer findCustomerByID(String ID) {
+        for (Customer c : User.getCustomersCollection()) {
+            if (ID.equals(c.getUserID())) {
+                return c;
             }
         }
-        return isUnique;
+        return null;
+    }
+
+    public boolean isUniqueData(String emailID) {
+        return User.getCustomersCollection().stream().anyMatch(c -> emailID.equals(c.getEmail()));
     }
 
     public void editUserInfo(String ID) {
-        boolean isFound = false;
-        Scanner read = new Scanner(System.in);
-        for (Customer c : customerCollection) {
-            if (ID.equals(c.getUserID())) {
-                isFound = true;
-                System.out.print("\nEnter the new name of the Passenger:\t");
-                String name = read.nextLine();
-                c.setName(name);
-                System.out.print("Enter the new email address of Passenger " + name + ":\t");
-                c.setEmail(read.nextLine());
-                System.out.print("Enter the new Phone number of Passenger " + name + ":\t");
-                c.setPhone(read.nextLine());
-                System.out.print("Enter the new address of Passenger " + name + ":\t");
-                c.setAddress(read.nextLine());
-                System.out.print("Enter the new age of Passenger " + name + ":\t");
-                c.setAge(read.nextInt());
-                displayCustomersData(false);
-                break;
-            }
-        }
-        if (!isFound) {
-            System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", ID);
-        }
-    }
-
-    public void deleteUser(String ID) {
-        boolean isFound = false;
-        Iterator<Customer> iterator = customerCollection.iterator();
-        while (iterator.hasNext()) {
-            Customer customer = iterator.next();
-            if (ID.equals(customer.getUserID())) {
-                isFound = true;
-                break;
-            }
-        }
-        if (isFound) {
-            iterator.remove();
-            System.out.printf("\n%-50sPrinting all  Customer's Data after deleting Customer with the ID %s.....!!!!\n",
-                    "", ID);
+        Customer customer = findCustomerByID(ID);
+        if (customer != null) {
+            Scanner read = new Scanner(System.in);
+            customer.setName(promptUserInput(read, "Enter the new name of the Passenger:\t"));
+            customer.setEmail(promptUserInput(read, "Enter the new email address of Passenger " + customer.getName() + ":\t"));
+            customer.setPhone(promptUserInput(read, "Enter the new Phone number of Passenger " + customer.getName() + ":\t"));
+            customer.setAddress(promptUserInput(read, "Enter the new address of Passenger " + customer.getName() + ":\t"));
+            customer.setAge(Integer.parseInt(promptUserInput(read, "Enter the new age of Passenger " + customer.getName() + ":\t")));
             displayCustomersData(false);
         } else {
             System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", ID);
         }
     }
 
-    /**
-     * Shows the customers' data in formatted way.
-     * 
-     * @param showHeader to check if we want to print ascii art for the customers'
-     *                   data.
-     */
-    public void displayCustomersData(boolean showHeader) {
-        displayHeader();
-        Iterator<Customer> iterator = customerCollection.iterator();
-        int i = 0;
-        while (iterator.hasNext()) {
-            i++;
-            Customer c = iterator.next();
-            System.out.println(c.toString(i));
-            System.out.printf(
-                    "%10s+------------+------------+----------------------------------+---------+-----------------------------+-------------------------------------+-------------------------+\n",
-                    "");
+    public void deleteUser(String ID) {
+        Customer customer = findCustomerByID(ID);
+        if (customer != null) {
+            User.getCustomersCollection().remove(customer);
+            System.out.printf("\n%-50sPrinting all Customer's Data after deleting Customer with the ID %s.....!!!!\n", "", ID);
+            displayCustomersData(false);
+        } else {
+            System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", ID);
         }
     }
 
-    /**
-     * Shows the header for printing customers data
-     */
+    public void displayCustomersData(boolean showHeader) {
+        if (showHeader) {
+            displayHeader();
+        }
+        int i = 0;
+        for (Customer c : User.getCustomersCollection()) {
+            i++;
+            System.out.println(c.toString(i));
+            System.out.printf("%10s+------------+------------+----------------------------------+---------+-----------------------------+-------------------------------------+-------------------------+\n", "");
+        }
+    }
+
     void displayHeader() {
         System.out.println();
-        System.out.printf(
-                "%10s+------------+------------+----------------------------------+---------+-----------------------------+-------------------------------------+-------------------------+\n",
-                "");
-        System.out.printf(
-                "%10s| SerialNum  |   UserID   | Passenger Names                  | Age     | EmailID\t\t       | Home Address\t\t\t     | Phone Number\t       |%n",
-                "");
-        System.out.printf(
-                "%10s+------------+------------+----------------------------------+---------+-----------------------------+-------------------------------------+-------------------------+\n",
-                "");
+        System.out.printf("%10s+------------+------------+----------------------------------+---------+-----------------------------+-------------------------------------+-------------------------+\n", "");
+        System.out.printf("%10s| SerialNum  |   UserID   | Passenger Names                  | Age     | EmailID\t\t       | Home Address\t\t\t     | Phone Number\t       |%n", "");
+        System.out.printf("%10s+------------+------------+----------------------------------+---------+-----------------------------+-------------------------------------+-------------------------+\n", "");
         System.out.println();
-
     }
 
-    /**
-     * Adds space between userID to increase its readability
-     * <p>
-     * Example:
-     * </p>
-     * <b>"920 191" is much more readable than "920191"</b>
-     *
-     * @param randomID id to add space
-     * @return randomID with added space
-     */
     String randomIDDisplay(String randomID) {
-        StringBuilder newString = new StringBuilder();
-        for (int i = 0; i <= randomID.length(); i++) {
-            if (i == 3) {
-                newString.append(" ").append(randomID.charAt(i));
-            } else if (i < randomID.length()) {
-                newString.append(randomID.charAt(i));
-            }
-        }
-        return newString.toString();
+        return randomID.replaceAll("(.{3})", "$1 ");
     }
 
-    /**
-     * Associates a new flight with the specified customer
-     *
-     * @param f flight to associate
-     */
     void addNewFlightToCustomerList(Flight f) {
         this.flightsRegisteredByUser.add(f);
-        // numOfFlights++;
     }
 
-    /**
-     * Adds numOfTickets to already booked flights
-     * 
-     * @param index        at which flight is registered in the arraylist
-     * @param numOfTickets how many tickets to add
-     */
     void addExistingFlightToCustomerList(int index, int numOfTickets) {
         int newNumOfTickets = numOfTicketsBookedByUser.get(index) + numOfTickets;
         this.numOfTicketsBookedByUser.set(index, newNumOfTickets);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Customer{name='%s', userID='%s', email='%s', phone='%s', address='%s', age=%d}", name, userID, email, phone, address, age);
+    }
+
+    public String toString(int index) {
+        return String.format("%10s| %-10d | %-10s | %-32s | %-7d | %-29s | %-35s | %-23s |", "", index, userID, name, age, email, address, phone);
     }
 
     // ************************************************************ Setters &
