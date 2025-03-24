@@ -125,17 +125,30 @@ public class Flight extends FlightDistance {
         String[] timeArray = timeInString.replace('.', ':').split(":");
         int hours = Integer.parseInt(timeArray[0]);
         int minutes = Integer.parseInt(timeArray[1]);
+        minutes = adjustMinutes(minutes);
+        hours = adjustHours(hours, minutes);
+        return formatFlightTime(hours, minutes);
+    }
+
+    private int adjustMinutes(int minutes) {
         int modulus = minutes % 5;
-        // Changing flight time to make minutes near/divisible to 5.
         if (modulus < 3) {
             minutes -= modulus;
         } else {
             minutes += 5 - modulus;
         }
+        return minutes;
+    }
+
+    private int adjustHours(int hours, int minutes) {
         if (minutes >= 60) {
             minutes -= 60;
             hours++;
         }
+        return hours;
+    }
+
+    private String formatFlightTime(int hours, int minutes) {
         if (hours <= 9 && Integer.toString(minutes).length() == 1) {
             return String.format("0%s:%s0", hours, minutes);
         } else if (hours <= 9 && Integer.toString(minutes).length() > 1) {
